@@ -1,36 +1,59 @@
+using OfficeOpenXml;
+
 namespace Bislerium_Cafe
 {
     public partial class order : ContentPage
     {
         private List<OrderInfo> orderList;
+        private List<string> coffeeNames;
+        private List<string> addIns;
         public order()
         {
             orderList = new List<OrderInfo>();
+            coffeeNames = new List<string>();
+            addIns = new List<string>();
 
             InitializeComponent();
+            LoadDataFromExcel();
             InitializePickers();
         }
 
+        private void LoadDataFromExcel()
+        {
+            string excelPath = "C:\\Users\\rasho\\Desktop\\Application development\\staff_login_data.xlsx";
+
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            using (var package = new ExcelPackage(new FileInfo(excelPath)))
+            {
+                ExcelWorksheet worksheet = package.Workbook.Worksheets[2];
+
+                int rowCount = worksheet.Dimension.Rows;
+
+                for (int row = 2; row <= rowCount; row++)
+                {
+                   
+                    string coffeeName = worksheet.Cells[row, 1].Text;
+                    string addIn = worksheet.Cells[row, 2].Text;
+
+                    if (!string.IsNullOrEmpty(coffeeName))
+                    {
+                        coffeeNames.Add(coffeeName);
+                    }
+
+                    if (!string.IsNullOrEmpty(addIn))
+                    {
+                        addIns.Add(addIn);
+                    }
+                }
+            }
+        }
         private void InitializePickers()
         {
-            List<string> coffeeNames = new List<string>
-            {
-                "Espresso",
-                "Cappuccino",
-                "Latte",
-                "Americano"
-            };
-
-            List<string> addIns = new List<string>
-            {
-                "Sugar",
-                "Milk",
-                "Whipped Cream"
-            };
-
             CoffeeTypePicker.ItemsSource = coffeeNames;
-            AddInsPicker.ItemsSource = addIns;
+           // AddInsPicker.ItemsSource = addIns;
         }
+
 
         private void OnSizeCheckedChanged(object sender, CheckedChangedEventArgs e)
         {
@@ -43,6 +66,7 @@ namespace Bislerium_Cafe
 
             UpdateSummary();
         }
+
 
         private void OnExpressDeliveryCheckedChanged(object sender, CheckedChangedEventArgs e)
         {
