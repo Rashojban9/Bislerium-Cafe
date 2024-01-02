@@ -1,4 +1,5 @@
 using OfficeOpenXml;
+using System.Text;
 
 namespace Bislerium_Cafe
 {
@@ -32,9 +33,9 @@ namespace Bislerium_Cafe
 
                 for (int row = 2; row <= rowCount; row++)
                 {
-                   
+
                     string coffeeName = worksheet.Cells[row, 1].Text;
-                    string addIn = worksheet.Cells[row, 2].Text;
+                    string addIn = worksheet.Cells[row, 5].Text;
 
                     if (!string.IsNullOrEmpty(coffeeName))
                     {
@@ -51,7 +52,7 @@ namespace Bislerium_Cafe
         private void InitializePickers()
         {
             CoffeeTypePicker.ItemsSource = coffeeNames;
-           // AddInsPicker.ItemsSource = addIns;
+            AddInsPicker.ItemsSource = addIns;
         }
 
 
@@ -61,19 +62,29 @@ namespace Bislerium_Cafe
 
             if (checkBox.IsChecked)
             {
+                UpdateSummaryAsync();
                 UncheckOtherSizeCheckBoxes(checkBox);
+
             }
 
-            UpdateSummary();
+            
         }
 
 
         private void OnExpressDeliveryCheckedChanged(object sender, CheckedChangedEventArgs e)
         {
-            UpdateSummary();
+           UpdateSummaryAsync();
         }
 
-        private async void OnPlaceOrderClicked(object sender, EventArgs e)
+        private  async void OnPlaceOrderClicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new listpage(orderList));
+
+        }
+
+
+
+        private async void UpdateSummaryAsync()
         {
             if (ValidateOrder())
             {
@@ -81,7 +92,7 @@ namespace Bislerium_Cafe
                 LoadingIndicator.IsRunning = true;
                 LoadingIndicator.IsVisible = true;
 
-               
+
                 await Task.Delay(TimeSpan.FromSeconds(2));
 
                 OrderConfirmation.IsVisible = false;
@@ -96,8 +107,11 @@ namespace Bislerium_Cafe
                     ExpressDelivery = ExpressDeliveryCheckBox.IsChecked ? "Yes" : "No"
                 };
 
-                
+
                 orderList.Add(orderInfo);
+                
+
+
 
 
             }
@@ -105,14 +119,7 @@ namespace Bislerium_Cafe
             {
                 await DisplayAlert("Error", "Please select a coffee type before placing the order.", "OK");
             }
-        }
 
-        private void UpdateSummary()
-        {
-            SummaryLabel.Text = $"Coffee Type: {CoffeeTypePicker.SelectedItem}, " +
-                                $"Add-ins: {AddInsPicker.SelectedItem}, " +
-                                $"Size: {GetSelectedSize()}, " +
-                                $"Express Delivery: {(ExpressDeliveryCheckBox.IsChecked ? "Yes" : "No")}";
         }
 
         private string GetSelectedSize()
@@ -148,10 +155,22 @@ namespace Bislerium_Cafe
 
         private bool ValidateOrder()
         {
-           
+
             return CoffeeTypePicker.SelectedItem != null;
         }
+        private string GenerateBill(OrderInfo orderInfo)
+        {
+            StringBuilder bill = new StringBuilder();
+            bill.AppendLine("************ Coffee Order Bill ************");
+            bill.AppendLine($"Coffee Type: {orderInfo.CoffeeType}");
+            bill.AppendLine($"Add-ins: {orderInfo.AddIns}");
+            bill.AppendLine($"Size: {orderInfo.Size}");
+            bill.AppendLine($"Quantity: {orderInfo.quantity}");
+            bill.AppendLine($"Express Delivery: {orderInfo.ExpressDelivery}");
+            bill.AppendLine("**************************************");
 
+            return bill.ToString();
+        }
     }
     public class OrderInfo
     {

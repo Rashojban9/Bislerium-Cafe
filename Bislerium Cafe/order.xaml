@@ -98,6 +98,7 @@
                          Clicked="OnPlaceOrderClicked"
                          CornerRadius="8"
                          HeightRequest="40" />
+                   
 
                     <Label x:Name="OrderConfirmation"
                         TextColor="Green"

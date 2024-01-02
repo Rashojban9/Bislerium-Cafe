@@ -13,7 +13,7 @@
                   HeightRequest="80"
                   HorizontalOptions="Center" />
 
-                    <Label Text="Bislerium Cafe Login"
+                    <Label Text="Admin login"
                   FontSize="24"
                   HorizontalOptions="Center"
                   TextColor="#693504" />
